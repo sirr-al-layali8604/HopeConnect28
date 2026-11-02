@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HopeConnect — Community Support Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7FA; --surface:#FFFFFF; --ink:#101828; --mute:#667085; --faint:#98A2B3;
+  --teal:#00B074; --teal-d:#008F5D; --teal-s:#E3F7EE;
+  --indigo:#4F5BFF; --indigo-s:#ECEEFF;
+  --amber:#B54708; --amber-s:#FFF2DE; --red:#C0341D; --red-s:#FFE9E5;
+  --line:rgba(16,24,40,.07);
+  --sh1:0 1px 2px rgba(16,24,40,.04),0 6px 20px -8px rgba(16,24,40,.08),0 24px 48px -28px rgba(16,24,40,.10);
+  --sh2:0 2px 4px rgba(16,24,40,.04),0 12px 28px -8px rgba(16,24,40,.12),0 32px 64px -28px rgba(16,24,40,.14);
+  --glass:rgba(255,255,255,.72);
+  --r-lg:28px; --r-md:20px; --r-sm:14px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+/* aquamorphic backdrop */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(520px 420px at 8% -4%,rgba(0,176,116,.20),transparent 70%),
+             radial-gradient(560px 460px at 96% 6%,rgba(79,91,255,.16),transparent 70%),
+             radial-gradient(640px 480px at 60% 108%,rgba(0,176,116,.12),transparent 70%)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid rgba(79,91,255,.45);outline-offset:2px}
+h1,h2,h3,h4,p{margin:0}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;padding:calc(12px + env(safe-area-inset-top,0px)) 20px 8px;display:flex;justify-content:center}
+.navpill{display:flex;align-items:center;gap:8px;max-width:1040px;width:100%;padding:8px 8px 8px 18px;border-radius:999px;background:var(--glass);backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);border:1px solid rgba(255,255,255,.8);box-shadow:var(--sh1)}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer;border:0;background:none;padding:0;margin-right:auto}
+.logo{width:30px;height:30px;border-radius:50%;background:conic-gradient(from 210deg,var(--teal),#5BE0B0,var(--indigo),var(--teal));display:grid;place-items:center}
+.logo::after{content:"";width:12px;height:12px;border-radius:50%;background:#fff}
+.brand b{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.tabs{display:flex;gap:2px}
+.tab{border:0;background:transparent;color:var(--mute);font-weight:600;font-size:13.5px;padding:10px 18px;border-radius:999px;cursor:pointer;transition:background .25s var(--ease),color .25s}
+.tab:hover{color:var(--ink)}
+.tab.on{background:var(--ink);color:#fff}
+.tab .s{display:none}
+
+main{max-width:1040px;margin:0 auto;padding:24px 20px 120px}
+.view{display:none}
+.view.on{display:block;animation:rise .45s var(--ease)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:stretch;margin-bottom:20px}
+.hero-copy{padding:20px 8px 8px 4px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--teal-s);color:var(--teal-d);font-size:12.5px;font-weight:700}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(0,176,116,.2)}
+.hero h1{font-size:clamp(32px,5vw,50px);line-height:1.04;letter-spacing:-.035em;font-weight:800;margin:18px 0 14px}
+.hero p.lead{color:var(--mute);font-size:16px;max-width:46ch}
+.live{background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.9);border-radius:var(--r-lg);box-shadow:var(--sh2);padding:24px;display:flex;flex-direction:column;gap:16px;justify-content:center}
+.live h3{font-size:14px;color:var(--mute);font-weight:600}
+.live-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--sh1)}
+.live-row .n{font-size:30px;font-weight:800;letter-spacing:-.03em;min-width:48px}
+.live-row span{color:var(--mute);font-size:13.5px;line-height:1.3}
+.ico{width:44px;height:44px;border-radius:16px;display:grid;place-items:center;flex:none}
+.ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.t{background:var(--teal-s);color:var(--teal-d)} .ico.i{background:var(--indigo-s);color:var(--indigo)}
+
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--sh1);padding:26px;border:1px solid var(--line)}
+.portal{display:flex;flex-direction:column;gap:12px;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.portal:hover{transform:translateY(-4px);box-shadow:var(--sh2)}
+.portal h2{font-size:20px;letter-spacing:-.02em;margin-top:6px}
+.portal p{color:var(--mute);font-size:14px;flex:1}
+
+/* buttons */
+.btn{border:0;cursor:pointer;border-radius:999px;padding:13px 24px;font-weight:700;font-size:14px;transition:transform .2s var(--ease),box-shadow .25s,background .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn-teal{background:var(--teal);color:#fff;box-shadow:0 8px 20px -8px rgba(0,176,116,.7)}
+.btn-teal:hover{background:var(--teal-d)}
+.btn-indigo{background:var(--indigo);color:#fff;box-shadow:0 8px 20px -8px rgba(79,91,255,.7)}
+.btn-soft{background:#EEF1F6;color:var(--ink)} .btn-soft:hover{background:#E4E8F0}
+
+/* page head */
+.head{margin:8px 4px 22px}
+.head h1{font-size:clamp(26px,4vw,34px);letter-spacing:-.03em;font-weight:800}
+.head p{color:var(--mute);margin-top:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.card h3.t{font-size:17px;letter-spacing:-.01em;margin-bottom:18px}
+
+/* forms */
+.f{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.f label{font-size:13px;font-weight:600}
+.in{width:100%;border:1.5px solid transparent;background:#F2F4F8;border-radius:var(--r-sm);padding:13px 16px;font-size:14.5px;outline:none;transition:border-color .2s,background .2s,box-shadow .2s}
+.in::placeholder{color:var(--faint)}
+.in:focus{background:#fff;border-color:var(--teal);box-shadow:0 0 0 4px rgba(0,176,116,.14)}
+textarea.in{resize:vertical;min-height:110px}
+select.in{appearance:none;-webkit-appearance:none;padding-right:42px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23667085' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.amounts{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.amt{border:0;cursor:pointer;background:#F2F4F8;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--mute);transition:all .2s}
+.amt:hover,.amt.on{background:var(--indigo-s);color:var(--indigo)}
+
+/* segmented control */
+.seg{display:inline-flex;padding:5px;border-radius:999px;background:#E9EDF3;margin-bottom:18px;max-width:100%}
+.seg button{border:0;background:transparent;border-radius:999px;padding:10px 20px;font-weight:600;font-size:13.5px;color:var(--mute);cursor:pointer;transition:all .25s var(--ease)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(16,24,40,.1)}
+
+/* steppers */
+.stepper{display:flex;align-items:flex-start;margin-bottom:22px}
+.st{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;text-align:center;font-size:12px;font-weight:600;color:var(--faint)}
+.st:not(:first-child)::before{content:"";position:absolute;top:15px;right:50%;width:100%;height:3px;border-radius:3px;background:#E4E8F0}
+.st.done:not(:first-child)::before,.st.now:not(:first-child)::before{background:var(--teal)}
+.dot{width:32px;height:32px;border-radius:50%;background:#E9EDF3;display:grid;place-items:center;font-size:13px;font-weight:800;color:var(--faint);position:relative;z-index:1;transition:all .3s}
+.st.done{color:var(--ink)} .st.done .dot{background:var(--teal);color:#fff}
+.st.now{color:var(--ink)} .st.now .dot{background:#fff;color:var(--teal-d);box-shadow:0 0 0 3px var(--teal),0 0 0 8px rgba(0,176,116,.16)}
+.st.done .dot::after{content:"";width:9px;height:5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px);position:absolute}
+.st.done .dot span{opacity:0}
+.stepper.sm{max-width:360px;margin:0 auto 22px}
+
+/* status chips */
+.pill{display:inline-block;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.s-Submitted{background:var(--indigo-s);color:var(--indigo)}
+.s-Under-Review{background:var(--amber-s);color:var(--amber)}
+.s-Assigned{background:#E1F2FF;color:#0B6BB5}
+.s-Completed{background:var(--teal-s);color:var(--teal-d)}
+.u-Critical{background:var(--red-s);color:var(--red)} .u-High{background:var(--amber-s);color:var(--amber)} .u-Medium{background:#EEF1F6;color:var(--mute)}
+
+/* alerts / results */
+.ok{display:none;align-items:center;gap:12px;background:var(--teal-s);color:#05684A;border-radius:var(--r-md);padding:14px 16px;font-size:14px;margin-bottom:18px}
+.ok.show{display:flex;animation:rise .4s var(--ease)}
+.ok b{font-weight:800}
+.result{background:#F8FAFC;border-radius:var(--r-md);padding:22px;margin-top:6px;animation:rise .4s var(--ease)}
+.result .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:6px;flex-wrap:wrap}
+.result h4{font-size:18px;letter-spacing:-.01em}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;color:var(--mute);font-size:13px;align-items:center}
+.err{color:var(--red);background:var(--red-s);padding:12px 16px;border-radius:var(--r-sm);font-size:13.5px;margin-top:6px}
+.srch{display:flex;gap:10px;margin-bottom:14px}
+.recent{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center;font-size:13px;color:var(--mute)}
+.recent .amt{font-variant-numeric:tabular-nums}
+
+/* tables */
+.tw{overflow-x:auto;margin:0 -8px}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;min-width:560px}
+th{font-size:12.5px;font-weight:600;color:var(--faint);text-align:left;padding:4px 14px}
+td{padding:14px;font-size:13.5px;color:var(--mute);background:#F8FAFC;vertical-align:middle}
+td:first-child{border-radius:16px 0 0 16px} td:last-child{border-radius:0 16px 16px 0}
+td strong{color:var(--ink);font-weight:700}
+.empty{text-align:center;color:var(--mute);padding:28px 0;font-size:14px}
+
+/* metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.metric{padding:22px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--sh1);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.metric span{font-size:13px;font-weight:600;color:var(--mute)}
+.metric b{font-size:38px;line-height:1.1;letter-spacing:-.04em;font-weight:800}
+.metric.hl{background:linear-gradient(145deg,var(--indigo),#7B6BFF);color:#fff;border:0;box-shadow:0 16px 36px -14px rgba(79,91,255,.7)}
+.metric.hl span{color:rgba(255,255,255,.8)}
+.mini{border:0;background:#fff;border-radius:999px;padding:8px 34px 8px 14px;font-size:12.5px;font-weight:600;box-shadow:inset 0 0 0 1.5px #E4E8F0;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%23667085' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 5.5 3.5 3.5 3.5-3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:13.5px;font-weight:600;box-shadow:var(--sh2);transition:all .4s var(--ease);z-index:40}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;color:var(--faint);font-size:12.5px;padding:0 20px 40px}
+
+/* ---- translucent glass layer ---- */
+[hidden]{display:none!important}
+:root{--gl:rgba(255,255,255,.55)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){:root{--gl:rgba(255,255,255,.95)}}
+body::before{background:
+ radial-gradient(520px 440px at 6% -2%,rgba(0,176,116,.34),transparent 70%),
+ radial-gradient(580px 480px at 98% 4%,rgba(79,91,255,.30),transparent 70%),
+ radial-gradient(460px 420px at 16% 58%,rgba(79,91,255,.16),transparent 70%),
+ radial-gradient(520px 460px at 92% 78%,rgba(0,176,116,.24),transparent 70%),
+ radial-gradient(640px 480px at 50% 112%,rgba(79,91,255,.18),transparent 70%)}
+.card,.metric,.live,.live-row,.result,.login{background:var(--gl);backdrop-filter:blur(26px) saturate(1.7);-webkit-backdrop-filter:blur(26px) saturate(1.7);border:1px solid rgba(255,255,255,.8);box-shadow:var(--sh1),inset 0 1px 0 rgba(255,255,255,.95)}
+.live{background:rgba(255,255,255,.42)}
+.live-row,.result{background:rgba(255,255,255,.62)}
+.metric.hl{background:linear-gradient(145deg,rgba(79,91,255,.9),rgba(123,107,255,.78));border:1px solid rgba(255,255,255,.35)}
+td{background:rgba(255,255,255,.5)}
+.in{background:rgba(255,255,255,.62);border-color:rgba(16,24,40,.06)}
+.in:focus{background:#fff;border-color:var(--teal)}
+.amt{background:rgba(255,255,255,.65)}
+.amt:hover,.amt.on{background:var(--indigo-s)}
+.seg{background:rgba(233,237,243,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+/* session pill */
+.sess{border:0;cursor:pointer;border-radius:999px;padding:10px 16px;font-size:12.5px;font-weight:700;background:var(--teal-s);color:var(--teal-d);white-space:nowrap}
+/* login gate */
+.gate{display:grid;grid-template-columns:minmax(0,430px) 1fr;gap:16px;align-items:start}
+.login{border-radius:var(--r-lg);padding:28px}
+.login h3{font-size:22px;letter-spacing:-.02em;margin:14px 0 4px}
+.login>p{color:var(--mute);font-size:14px;margin-bottom:16px}
+.login .note{color:var(--indigo);font-weight:600;font-size:13px}
+.login .err{margin:0 0 14px}
+.login .hint{font-size:12.5px;margin:14px 0 0}
+.login .hint button{border:0;background:none;color:var(--indigo);font-weight:700;cursor:pointer;padding:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stats .metric b{font-size:30px}
+.stats-title{grid-column:1/-1;font-size:13px;font-weight:600;color:var(--mute);margin:4px 4px 0}
+/* about */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.how h4{font-size:17px;margin:12px 0 6px;letter-spacing:-.01em}
+.how p,.about p,.about li{color:var(--mute);font-size:14.5px}
+.how .dot{background:var(--teal);color:#fff}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.about ul{margin:0;padding-left:20px;display:grid;gap:10px}
+.about .lead{font-size:16px;max-width:68ch}
+.about a{color:var(--indigo);font-weight:700;text-decoration:none}
+@media(max-width:820px){.gate,.how,.about-grid{grid-template-columns:1fr}}
+.gate{grid-template-columns:1fr;justify-items:center;align-content:center;min-height:calc(100vh - 230px)}
+.login{width:100%;max-width:440px}
+.login .back{display:block;margin:14px auto 0;border:0;background:none;color:var(--mute);font-weight:600;font-size:13px;cursor:pointer}
+@media(max-width:820px){
+  .hero,.two,.grid3{grid-template-columns:1fr}
+  .metrics{grid-template-columns:1fr 1fr}
+  .row2{grid-template-columns:1fr}
+  /* nav becomes a floating bottom pill, like a mobile OS dock */
+  .topbar{position:static;padding-bottom:0}
+  .navpill{padding:10px 18px}
+  .tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;padding:6px;border-radius:999px;background:var(--glass);backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);border:1px solid rgba(255,255,255,.8);box-shadow:var(--sh2);width:calc(100% - 28px);max-width:420px}
+  .tab{flex:1;padding:11px 4px;font-size:13px}
+  .tab .l{display:none} .tab .s{display:inline}
+  .card{padding:22px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <nav class="navpill" aria-label="Primary">
+    <button class="brand" onclick="go('home')" aria-label="HopeConnect home"><span class="logo"></span><b>HopeConnect</b></button>
+    <div class="tabs">
+      <button class="tab on" id="nav-home"   onclick="go('home')"><span class="l">Gateway</span><span class="s">Home</span></button>
+      <button class="tab"    id="nav-donor" data-role="donor"  onclick="go('donor')"><span class="l">Donors</span><span class="s">Donate</span></button>
+      <button class="tab"    id="nav-seeker" data-role="seeker" onclick="go('seeker')"><span class="l">Seekers</span><span class="s">Get help</span></button>
+      <button class="tab"    id="nav-admin" data-role="admin"  onclick="go('admin')"><span class="l">Admin</span><span class="s">Admin</span></button>
+      <button class="tab"    id="nav-about"  onclick="go('about')"><span class="l">About</span><span class="s">About</span></button>
+    </div>
+    <button class="sess" id="sess" hidden onclick="logout()"></button>
+  </nav>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section id="view-home" class="view on">
+    <div class="hero">
+      <div class="hero-copy">
+        <span class="chip"><i></i>Serving Greater Mumbai, Thane and Palghar</span>
+        <h1>Help reaches people faster when we connect.</h1>
+        <p class="lead">Verified NGOs, volunteers and donors working from one shared list, so every request is seen, assigned and closed in the open.</p>
+      </div>
+      <div class="live" aria-live="polite">
+        <h3>Right now</h3>
+        <div class="live-row"><div class="ico t"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg></div><div class="n" id="live-open">0</div><span>requests waiting for help</span></div>
+        <div class="live-row"><div class="ico i"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div><div class="n" id="live-don">0</div><span>contributions logged</span></div>
+        <div class="live-row"><div class="ico t"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></div><div class="n" id="live-done">0</div><span>requests completed</span></div>
+        <div class="live-row"><div class="ico i"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H7"/></svg></div><div class="n" id="live-raised" style="font-size:24px">₹ 0</div><span>raised so far</span></div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <article class="card portal">
+        <div class="ico t"><svg viewBox="0 0 24 24"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7c-2 0-4-1-4-3s3-2 4 3c1-5 4-5 4-3s-2 3-4 3z"/></svg></div>
+        <h2>Donor portal</h2>
+        <p>Give funds or relief supplies and see exactly where your contribution is allocated.</p>
+        <button class="btn btn-teal" onclick="go('donor')">Make a contribution</button>
+      </article>
+      <article class="card portal">
+        <div class="ico i"><svg viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <h2>Seeker portal</h2>
+        <p>Ask for food, healthcare, education or emergency aid and get a tracking ID right away.</p>
+        <button class="btn btn-teal" onclick="go('seeker')">Request support</button>
+      </article>
+      <article class="card portal">
+        <div class="ico i"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg></div>
+        <h2>Admin dashboard</h2>
+        <p>Review incoming cases, assign volunteers and keep every request moving.</p>
+        <button class="btn btn-indigo" onclick="go('admin')">Open dashboard</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- DONOR -->
+  <section id="view-donor" class="view" data-role="donor">
+    <div class="head"><h1>Donor portal</h1><p>Give directly and follow every rupee in the ledger.</p></div>
+    <div class="two">
+      <div class="card">
+        <h3 class="t">Make a contribution</h3>
+        <div id="donor-alert" class="ok" role="status"></div>
+        <form id="donor-form" onsubmit="donate(event)">
+          <div class="f"><label for="donor-name">Name or organisation</label><input id="donor-name" class="in" placeholder="Your full name" required></div>
+          <div class="f"><label for="donor-allocation">Where should it go?</label>
+            <select id="donor-allocation" class="in">
+              <option value="Food Support">Food support and rations</option>
+              <option value="Healthcare Fund">Healthcare and emergency medical</option>
+              <option value="Education Drive">Education and school kits</option>
+              <option value="Clothing Drive">Clothing and uniforms</option>
+            </select></div>
+          <div class="f"><label for="donor-amount">Amount (₹)</label>
+            <input id="donor-amount" class="in" type="number" min="1" value="1000" required>
+            <div class="amounts" id="amounts"></div></div>
+          <button class="btn btn-teal" type="submit">Contribute now</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3 class="t">Contribution ledger</h3>
+        <div class="tw"><table><thead><tr><th>Reference</th><th>Donor</th><th>Amount</th><th>Sector</th></tr></thead><tbody id="donations-tbody"></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEEKER -->
+  <section id="view-seeker" class="view" data-role="seeker">
+    <div class="head"><h1>Seeker portal</h1><p>Request help in two quick steps, then follow it until it is done.</p></div>
+    <div class="seg" role="tablist">
+      <button class="on" id="tab-create" onclick="seekerTab('create')">New request</button>
+      <button id="tab-track" onclick="seekerTab('track')">Track request</button>
+    </div>
+
+    <div id="seeker-create" class="card">
+      <div class="stepper sm" id="form-stepper">
+        <div class="st now"><div class="dot"><span>1</span></div>Your need</div>
+        <div class="st"><div class="dot"><span>2</span></div>Where to reach you</div>
+      </div>
+      <div id="seeker-alert" class="ok" role="status"></div>
+      <form id="seeker-form" onsubmit="submitRequest(event)">
+        <div id="step-1">
+          <div class="row2">
+            <div class="f"><label for="req-category">What kind of help?</label>
+              <select id="req-category" class="in">
+                <option value="Food Support">Food (meals, ration kits)</option>
+                <option value="Healthcare">Healthcare (medicines, emergency)</option>
+                <option value="Education">Education (books, fees)</option>
+                <option value="Emergency Aid">Emergency aid (fire, flood)</option>
+              </select></div>
+            <div class="f"><label for="req-urgency">How urgent?</label>
+              <select id="req-urgency" class="in">
+                <option value="Medium">Medium: within 48 hours</option>
+                <option value="High">High: within 24 hours</option>
+                <option value="Critical">Critical: right now</option>
+              </select></div>
+          </div>
+          <div class="f"><label for="req-desc">Describe what you need</label>
+            <textarea id="req-desc" class="in" placeholder="Who needs help, how many people, and anything we should know" required></textarea></div>
+          <button type="button" class="btn btn-teal" onclick="nextStep()">Continue</button>
+        </div>
+        <div id="step-2" hidden>
+          <div class="row2">
+            <div class="f"><label for="req-loc">Area or landmark</label><input id="req-loc" class="in" placeholder="e.g. Deonar, near the bus depot" required></div>
+            <div class="f"><label for="req-contact">Mobile number</label><input id="req-contact" class="in" type="tel" placeholder="+91 98765 43210" required></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button type="button" class="btn btn-soft" onclick="prevStep()">Back</button>
+            <button type="submit" class="btn btn-teal">Send request</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div id="seeker-track" class="card" hidden>
+      <h3 class="t">Track a request</h3>
+      <div class="srch">
+        <input id="search-id-input" class="in" placeholder="Tracking ID, e.g. HC-2026-1001" onkeydown="if(event.key==='Enter')search()" aria-label="Tracking ID">
+        <button class="btn btn-indigo" type="button" onclick="search()">Search</button>
+      </div>
+      <div class="recent" id="recent"></div>
+      <div id="search-result"></div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" class="view" data-role="admin">
+    <div class="head"><h1>Admin dashboard</h1><p>Dispatch requests and update status. Changes show up for seekers immediately.</p></div>
+    <div class="metrics">
+      <div class="metric"><span>Total requests</span><b id="m-total">0</b></div>
+      <div class="metric hl"><span>Needs attention</span><b id="m-pending">0</b></div>
+      <div class="metric"><span>Completed</span><b id="m-done">0</b></div>
+      <div class="metric"><span>Contributions</span><b id="m-don">0</b></div>
+    </div>
+    <div class="card">
+      <h3 class="t">All requests</h3>
+      <div class="tw"><table>
+        <thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Location</th><th>Status</th><th>Update</th></tr></thead>
+        <tbody id="admin-tbody"></tbody>
+      </table></div>
+    </div>
+  </section>
+  <!-- ABOUT -->
+  <section id="view-about" class="view about">
+    <div class="head"><h1>About HopeConnect</h1><p>An initiative by Bhavna Trust and its students.</p></div>
+    <div class="card">
+      <h3 class="t">Who we are</h3>
+      <p class="lead">HopeConnect is an initiative by Bhavna Trust and its students.</p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 class="t">Why we exist</h3>
+      <p class="lead">Families in Greater Mumbai, Thane and Palghar often wait for help because the people who can give it never hear about the need. HopeConnect puts every request, contribution and status change on one list, so verified NGOs, volunteers and donors act on the same facts.</p>
+    </div>
+    <div class="how">
+      <div class="card"><div class="dot"><span>1</span></div><h4>Ask</h4><p>A seeker describes the need and gets a tracking ID straight away.</p></div>
+      <div class="card"><div class="dot"><span>2</span></div><h4>Review</h4><p>An NGO admin checks the case, then assigns a volunteer.</p></div>
+      <div class="card"><div class="dot"><span>3</span></div><h4>Follow</h4><p>Status moves from submitted to completed, and donors see where funds went.</p></div>
+    </div>
+    <div class="about-grid">
+      <div class="card"><h3 class="t">What we promise</h3>
+        <ul>
+          <li>Every request is reviewed by an NGO admin before it is assigned.</li>
+          <li>Each contribution gets a reference ID in the ledger.</li>
+          <li>Each dashboard opens only for its own role. Headline numbers stay public on the gateway.</li>
+          <li>Contact numbers never appear on public screens.</li>
+        </ul></div>
+      <div class="card"><h3 class="t">Where we work</h3>
+        <p>Greater Mumbai, Thane and Palghar.</p>
+        <p style="margin-top:14px">Want to volunteer or partner as an NGO?<br><a href="mailto:hello@hopeconnect.example">hello@hopeconnect.example</a></p></div>
+    </div>
+  </section>
+</main>
+
+<footer>HopeConnect © 2026 · An initiative by Bhavna Trust and its students</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// ---------- state ----------
+const STEPS = ['Submitted','Under Review','Assigned','Completed'];
+let requests = [
+  {id:'HC-2026-1001',category:'Food Support',description:'Cooked meals needed for 12 community members near Deonar.',location:'Deonar, Mumbai',urgency:'High',status:'Submitted',date:'2026-11-01'},
+  {id:'HC-2026-1002',category:'Healthcare',description:'Essential prescription medicines for elderly resident.',location:'Chembur, Mumbai',urgency:'Critical',status:'Under Review',date:'2026-11-02'}
+];
+let donations = [{id:'DON-8801',donorName:'Anita Roy',amount:5000,allocation:'Food Support'}];
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const slug = s => s.replace(/\s+/g,'-');
+const inr = n => '₹ ' + Number(n).toLocaleString('en-IN');
+const open = () => requests.filter(r => r.status !== 'Completed').length;
+let toastT;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+function stepper(status,small){
+  const idx = STEPS.indexOf(status);
+  return `<div class="stepper ${small?'sm':''}">` + STEPS.map((s,i)=>
+    `<div class="st ${i<idx||status==='Completed'?'done':i===idx?'now':''}"><div class="dot"><span>${i+1}</span></div>${s}</div>`).join('') + `</div>`;
+}
+
+// ---------- navigation ----------
+function go(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  $('view-'+name).classList.add('on'); $('nav-'+name).classList.add('on');
+  if(name==='home') renderHome();
+  if(name==='donor') renderDonations();
+  if(name==='seeker') renderRecent();
+  if(name==='admin') renderAdmin();
+  applyAccess();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ---------- home ----------
+function renderHome(){ $('live-open').textContent=open(); $('live-don').textContent=donations.length; $('live-done').textContent=requests.filter(r=>r.status==='Completed').length; $('live-raised').textContent=inr(donations.reduce((t,d)=>t+d.amount,0)); }
+
+// ---------- donor ----------
+$('amounts').innerHTML = [500,1000,2500,5000].map(a=>`<button type="button" class="amt" data-a="${a}">${inr(a)}</button>`).join('');
+$('amounts').addEventListener('click',e=>{const b=e.target.closest('.amt');if(b){$('donor-amount').value=b.dataset.a;syncAmt()}});
+$('donor-amount').addEventListener('input',syncAmt);
+function syncAmt(){document.querySelectorAll('#amounts .amt').forEach(b=>b.classList.toggle('on',b.dataset.a===$('donor-amount').value))}
+syncAmt();
+
+function donate(e){
+  e.preventDefault();
+  const id = 'DON-' + Math.floor(8000 + Math.random()*1000);
+  donations.unshift({id,donorName:$('donor-name').value.trim(),amount:Number($('donor-amount').value),allocation:$('donor-allocation').value});
+  const a=$('donor-alert'); a.innerHTML=`Thank you. Your reference ID is <b>${id}</b>`; a.classList.add('show');
+  $('donor-form').reset(); $('donor-amount').value=1000; syncAmt();
+  renderDonations(); toast('Contribution recorded');
+}
+function renderDonations(){
+  $('donations-tbody').innerHTML = donations.length ? donations.map(d=>
+    `<tr><td><strong>${esc(d.id)}</strong></td><td>${esc(d.donorName)}</td><td><strong>${inr(d.amount)}</strong></td><td>${esc(d.allocation)}</td></tr>`).join('')
+    : `<tr><td colspan="4" class="empty">No contributions yet. Yours will appear here.</td></tr>`;
+}
+
+// ---------- seeker ----------
+function seekerTab(t){
+  $('seeker-create').hidden = t!=='create'; $('seeker-track').hidden = t!=='track';
+  $('tab-create').classList.toggle('on',t==='create'); $('tab-track').classList.toggle('on',t==='track');
+  if(t==='track') renderRecent();
+}
+function setStep(n){
+  $('step-1').hidden = n!==1; $('step-2').hidden = n!==2;
+  const s=document.querySelectorAll('#form-stepper .st');
+  s[0].className = 'st ' + (n===1?'now':'done'); s[1].className = 'st ' + (n===2?'now':'');
+}
+function nextStep(){
+  const d=$('req-desc'); if(!d.reportValidity()) return;
+  $('seeker-alert').classList.remove('show'); setStep(2); $('req-loc').focus();
+}
+function prevStep(){ setStep(1) }
+
+function submitRequest(e){
+  e.preventDefault();
+  const id = 'HC-2026-' + Math.floor(1000 + Math.random()*9000);
+  requests.unshift({id,category:$('req-category').value,description:$('req-desc').value.trim(),location:$('req-loc').value.trim(),urgency:$('req-urgency').value,status:'Submitted',date:new Date().toISOString().slice(0,10)});
+  const a=$('seeker-alert');
+  a.innerHTML=`Request sent. Your tracking ID is <b>${id}</b> &nbsp;<button type="button" class="amt on" onclick="trackNow('${id}')">Track it</button>`;
+  a.classList.add('show');
+  $('seeker-form').reset(); setStep(1); toast('Request submitted');
+}
+function trackNow(id){ seekerTab('track'); $('search-id-input').value=id; search() }
+
+function renderRecent(){
+  $('recent').innerHTML = requests.length ? '<span>Recent:</span>' + requests.slice(0,3).map(r=>`<button type="button" class="amt" onclick="trackNow('${esc(r.id)}')">${esc(r.id)}</button>`).join('') : '';
+}
+function search(){
+  const q=$('search-id-input').value.trim().toLowerCase(), box=$('search-result');
+  const r=requests.find(x=>x.id.toLowerCase()===q);
+  if(!r){ box.innerHTML = `<div class="err">${q?'No request matches that ID. Check it and try again.':'Enter a tracking ID to see its status.'}</div>`; return; }
+  box.innerHTML = `<div class="result">
+    <div class="top"><h4>${esc(r.category)}</h4><span class="pill s-${slug(r.status)}">${esc(r.status)}</span></div>
+    <p style="color:var(--mute);font-size:14px;margin-bottom:22px">${esc(r.description)}</p>
+    ${stepper(r.status)}
+    <div class="meta"><span>${esc(r.location)}</span><span class="pill u-${r.urgency}">${esc(r.urgency)}</span><span>Filed ${esc(r.date)}</span></div></div>`;
+}
+
+// ---------- admin ----------
+function renderAdmin(){
+  $('m-total').textContent=requests.length; $('m-pending').textContent=open();
+  $('m-done').textContent=requests.filter(r=>r.status==='Completed').length; $('m-don').textContent=donations.length;
+  $('admin-tbody').innerHTML = requests.map(r=>`<tr>
+    <td><strong>${esc(r.id)}</strong></td>
+    <td><strong>${esc(r.category)}</strong><br><span class="pill u-${r.urgency}" style="margin-top:6px">${esc(r.urgency)}</span></td>
+    <td style="max-width:240px">${esc(r.description)}</td>
+    <td>${esc(r.location)}</td>
+    <td><span class="pill s-${slug(r.status)}">${esc(r.status)}</span></td>
+    <td><select class="mini" aria-label="Update status for ${esc(r.id)}" onchange="setStatus('${esc(r.id)}',this.value)">
+      ${STEPS.map(s=>`<option ${s===r.status?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('');
+}
+function setStatus(id,status){
+  const r=requests.find(x=>x.id===id); if(!r) return;
+  r.status=status; renderAdmin(); toast(`${id} is now ${status.toLowerCase()}`);
+}
+
+// ---------- access control (front-end demo) ----------
+// Client-side only: anyone can read this script. A real app must check the role on the server.
+const ACCOUNTS = {
+  donor:  {user:'donor',  pass:'donor123',  name:'Demo Donor'},
+  seeker: {user:'seeker', pass:'seeker123', name:'Demo Seeker'},
+  admin:  {user:'admin',  pass:'admin123',  name:'Admin'}
+};
+const ROLE_LABEL = {donor:'Donor',seeker:'Seeker',admin:'Admin'};
+let session = null;
+
+
+function gateHTML(role){
+  const a=ACCOUNTS[role];
+  const other = session ? `<p class="note">You are signed in as ${ROLE_LABEL[session.role]}. Signing in here switches roles.</p>` : '';
+  return `<div class="login">
+    <div class="ico ${role==='donor'?'t':'i'}"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+    <h3>${ROLE_LABEL[role]} sign in</h3>
+    <p>This area is for ${role} accounts only.</p>${other}
+    <form onsubmit="login(event,'${role}')">
+      <div class="f"><label>Username</label><input class="in" name="u" aria-label="Username" autocomplete="username" required></div>
+      <div class="f"><label>Password</label><input class="in" name="p" type="password" aria-label="Password" autocomplete="current-password" required></div>
+      <div class="err" hidden></div>
+      <button class="btn btn-teal" type="submit">Sign in</button>
+    </form>
+    <p class="hint">Demo account: ${a.user} / ${a.pass} · <button type="button" onclick="fillDemo(this,'${role}')">Fill it in</button></p>
+  <button type="button" class="back" onclick="go('home')">Back to gateway</button>
+  </div>`;
+}
+function fillDemo(btn,role){
+  const f=btn.closest('.login').querySelector('form');
+  f.elements.u.value=ACCOUNTS[role].user; f.elements.p.value=ACCOUNTS[role].pass;
+}
+function login(e,role){
+  e.preventDefault();
+  const f=e.target, a=ACCOUNTS[role];
+  if(f.elements.u.value.trim()===a.user && f.elements.p.value===a.pass){
+    session={role,name:a.name}; toast(`Signed in as ${a.name}`); refreshAll(); go(role);
+  } else {
+    const er=f.querySelector('.err'); er.textContent=`Wrong username or password for the ${role} account.`; er.hidden=false; f.elements.p.value='';
+  }
+}
+function logout(){ session=null; toast('Signed out'); refreshAll(); go('home') }
+function refreshAll(){ renderDonations(); renderRecent(); renderAdmin(); renderHome(); applyAccess() }
+
+function applyAccess(){
+  document.querySelectorAll('section[data-role]').forEach(sec=>{
+    const role=sec.dataset.role, ok=!!session && session.role===role, gate=sec.querySelector('.gate');
+    sec.querySelector('.secure').hidden=!ok; sec.querySelector('.head').hidden=!ok; gate.hidden=ok;
+    if(ok) sec.querySelector('.head h1').textContent=`Hi, ${session.name}`; else gate.innerHTML=gateHTML(role);
+  });
+  document.querySelectorAll('.tab[data-role]').forEach(t=>{
+    const l=t.querySelector('.l'), sh=t.querySelector('.s');
+    if(!t.dataset.l){ t.dataset.l=l.textContent; t.dataset.s=sh.textContent }
+    t.hidden = !!session && t.dataset.role!==session.role;
+    l.textContent = session ? 'My dashboard' : t.dataset.l; sh.textContent = session ? 'Dashboard' : t.dataset.s;
+  });
+  const s=$('sess'); s.hidden=!session; if(session) s.textContent=`Sign out`;
+  if(session && session.role==='donor' && !$('donor-name').value) $('donor-name').value=session.name;
+}
+function initGates(){
+  document.querySelectorAll('section[data-role]').forEach(sec=>{
+    const head=sec.querySelector('.head'), secure=document.createElement('div'), gate=document.createElement('div');
+    secure.className='secure'; gate.className='gate';
+    while(head.nextSibling) secure.appendChild(head.nextSibling);
+    head.after(gate); gate.after(secure);
+  });
+}
+
+initGates(); renderHome(); renderDonations(); applyAccess();
+</script>
+</body>
+</html>
